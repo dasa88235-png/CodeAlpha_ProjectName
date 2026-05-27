@@ -1,0 +1,79 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyP6/b2HA5TEKk9k8PmxfKu6",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/dasa88235-png/CodeAlpha_ProjectName/blob/main/1%3A%20Web%20Scraping\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import requests\n",
+        "from bs4 import BeautifulSoup\n",
+        "import pandas as pd\n",
+        "import logging\n",
+        "\n",
+        "# Set up professional logging\n",
+        "logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')\n",
+        "\n",
+        "def scrape_website(url, output_filename):\n",
+        "    \"\"\"Scrapes quotes and authors from a sample website and saves to CSV.\"\"\"\n",
+        "    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}\n",
+        "\n",
+        "    try:\n",
+        "        logging.info(f\"Connecting to {url}...\")\n",
+        "        response = requests.get(url, headers=headers)\n",
+        "        response.raise_for_status() # Check for HTTP errors\n",
+        "\n",
+        "        soup = BeautifulSoup(response.content, 'html.parser')\n",
+        "\n",
+        "        # Example: Scraping quotes from quotes.toscrape.com\n",
+        "        quotes_data = []\n",
+        "        quote_elements = soup.find_all('div', class_='quote')\n",
+        "\n",
+        "        for element in quote_elements:\n",
+        "            text = element.find('span', class_='text').get_text(strip=True)\n",
+        "            author = element.find('small', class_='author').get_text(strip=True)\n",
+        "            quotes_data.append({'Author': author, 'Quote': text})\n",
+        "\n",
+        "        # Convert to DataFrame and save [cite: 28]\n",
+        "        df = pd.DataFrame(quotes_data)\n",
+        "        df.to_csv(output_filename, index=False)\n",
+        "        logging.info(f\"Successfully scraped {len(df)} items and saved to {output_filename}\")\n",
+        "\n",
+        "    except requests.exceptions.RequestException as e:\n",
+        "        logging.error(f\"Error fetching data: {e}\")\n",
+        "\n",
+        "if __name__ == \"__main__\":\n",
+        "    target_url = \"http://quotes.toscrape.com/\"\n",
+        "    scrape_website(target_url, \"scraped_dataset.csv\")"
+      ],
+      "metadata": {
+        "id": "tGwWrd_Ddb1C"
+      },
+      "execution_count": 11,
+      "outputs": []
+    }
+  ]
+}
