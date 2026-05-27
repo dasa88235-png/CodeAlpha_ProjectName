@@ -1,0 +1,92 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOQSrlbtYoNujyzszMJ6T9+"
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "import nltk\n",
+        "from nltk.sentiment.vader import SentimentIntensityAnalyzer\n",
+        "\n",
+        "# Download VADER lexicon for emotion detection [cite: 42]\n",
+        "# Note: You only need to run this download once.\n",
+        "nltk.download('vader_lexicon', quiet=True)\n",
+        "\n",
+        "def analyze_sentiment(texts):\n",
+        "    \"\"\"Analyzes a list of text strings and categorizes their sentiment.\"\"\"\n",
+        "    sia = SentimentIntensityAnalyzer()\n",
+        "    results = []\n",
+        "\n",
+        "    for text in texts:\n",
+        "        # Get sentiment scores\n",
+        "        scores = sia.polarity_scores(text)\n",
+        "        compound_score = scores['compound']\n",
+        "\n",
+        "        # Classify based on compound score [cite: 41]\n",
+        "        if compound_score >= 0.05:\n",
+        "            sentiment = 'Positive'\n",
+        "        elif compound_score <= -0.05:\n",
+        "            sentiment = 'Negative'\n",
+        "        else:\n",
+        "            sentiment = 'Neutral'\n",
+        "\n",
+        "        results.append({\n",
+        "            'Text': text,\n",
+        "            'Compound_Score': compound_score,\n",
+        "            'Sentiment': sentiment\n",
+        "        })\n",
+        "\n",
+        "    return pd.DataFrame(results)\n",
+        "\n",
+        "if __name__ == \"__main__\":\n",
+        "    # Sample data mimicking Amazon reviews or social media [cite: 43]\n",
+        "    sample_reviews = [\n",
+        "        \"I absolutely love this product! It works perfectly and saves me time.\",\n",
+        "        \"Terrible experience. The item broke after one day of use.\",\n",
+        "        \"It's okay. Not the best, but it gets the job done.\",\n",
+        "        \"The customer service was incredibly helpful and solved my issue immediately!\"\n",
+        "    ]\n",
+        "\n",
+        "    sentiment_df = analyze_sentiment(sample_reviews)\n",
+        "    print(\"--- Sentiment Analysis Results ---\")\n",
+        "    print(sentiment_df.to_string(index=False))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "hizIHpu_ih9b",
+        "outputId": "5bee29f2-7f27-4496-e863-7c7ad70c658b"
+      },
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "--- Sentiment Analysis Results ---\n",
+            "                                                                        Text  Compound_Score Sentiment\n",
+            "       I absolutely love this product! It works perfectly and saves me time.          0.8746  Positive\n",
+            "                   Terrible experience. The item broke after one day of use.         -0.7096  Negative\n",
+            "                          It's okay. Not the best, but it gets the job done.         -0.1862  Negative\n",
+            "The customer service was incredibly helpful and solved my issue immediately!          0.6955  Positive\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
